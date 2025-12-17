@@ -40,7 +40,10 @@ func dummy() {
 
 	for {
 		fmt.Println("Infinite loop")
-		break
+		if true {
+			break
+		}
+
 	}
 
 	for _, v := range arr {

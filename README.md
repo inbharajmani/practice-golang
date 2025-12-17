@@ -1,10 +1,7 @@
 # Quick notes
 - [Quick notes](#quick-notes)
   - [Initialization](#initialization)
-  - [Basic commands](#basic-commands)
-  - [Defer](#defer)
-  - [Variables](#variables)
-  - [Declaration](#declaration)
+  - [variables](#variables)
   - [Constants](#constants)
   - [Rune](#rune)
   - [Array](#array)
@@ -25,30 +22,21 @@
 ```bash
 go mod init [module_nme]
 ```
-
-## Basic commands
-
+To download all dependencies
 ```bash
-go run [file_name].go
-go build [file_name].go
-go clean
+go mod download
 ```
 
-## Defer
-- defer happens when function exits irrespective of how it exits - normal return, panic, error
-- defer happens in LIFO order
-- defer is useful to close file descriptors, db connections etc
-- defer works at function level and not at block 
+## variables
 
-## Variables
-
-## Declaration
+- Declaration
     - `var i int = 3`
     - It is possible to just define a var without a value but must include a datatype
     - Variables has to be in camelCase
     - int8, int16, int32, int64 -> stores both -ve and +ve integers. Hence for int16 = 65536 values = -32768 to 32767 values can be stored
     - int defaults to 32 or 64 bit depending on system architecture
     - uint for positive integers
+    - byte = uint8
     - float32, float64 - no default type size
     - arithmetic operations of different data types are not possible
     - `var myString string = "string"` or \``string`\`
@@ -57,37 +45,130 @@ go clean
     - bool defaults to false
     - string defaults to ""
     - `i := "hello"` -> shorthand / syntactic sugar. Only applies to variables and not const
-    - Multivariable intialization `var i, h = 1, 2`
+    - Multivariable initialization `var i, h = 1, 2`
     - IMP: variables are scoped to the closed blocks
 
 ## Constants
     - Values can't be modified once created
     - const always need to be initialized
+    - const only applies to basic data types - int, float, string, bool
     
  `const variableA = "constant"`
 
 ## Rune
 
 - Values enclosed in single quotes are rune literals
-- Strings are UTF-8 encoded while runes are UTF-32 encoded
-- Rune is an alias for int32
+- rune = int32
 
 ## Array
   - A list of items of same datatype
   - Has to specify a static size
+```
+var arr [5]int
+arr[0] = 10
+arr[1] = 20
+```
+- Array initialization
+```
+var arr = [5]int{10,20,30,40,50}
+```
+- Partial initialization
+```
+var arr = [5]int{10,20}
+```
+ Other values default to 0
+- Size can be inferred
+```
+var arr = [...]int{10,20,30,40,50}
+```
+
 
 ## Slice
 - Array with dynamic sizing
-- Slice has 3 components - pointer to array, length, capacity
-- Capacity is the max size of the slice
-- When creating a slice from an array, the capacity is from the starting index to the end of the array
-- When appending to a slice, if the capacity is exceeded, a new array is created
-- Slices are reference types - changes to the slice will affect the underlying array
+```
+var slice []int
+slice = append(slice, 10)
+slice = append(slice, 20)
+```
+- Slice initialization
+```
+var slice = []int{10,20,30}
+```
+- Slicing an array
+```
+var arr = [5]int{10,20,30,40,50}
+var slice = arr[1:4] // 20,30,40
+```
+- Slicing a slice
+```
+var slice1 = []int{10,20,30,40,50}
+var slice2 = slice1[2:4] // 30,40
+```
+- Slicing syntax - inclusive of start index and exclusive of end index
+- Length of slice - len(slice)
+- Capacity of slice - cap(slice) - total elements that can be stored in the underlying array (or) length from the start index to the end of underlying array
+- Create slice with make
+```
+var slice = make([]int, length, capacity)
+```
+- If capacity is not specified, it is set to length
+- When appending elements, if capacity is exceeded, a new underlying array is created with double the capacity and elements are copied over
+- Copying slices
+```
+var sourceSlice = []int{10,20,30}
+var destSlice = make([]int, len(sourceSlice))
+copy(destSlice, sourceSlice)
+```
+
+- Slice of structs
+```
+type person struct {
+    name string
+    age  int
+}
+var people []person
+people = append(people, person{name: "Alice", age: 30}, person{name: "Bob", age: 25}, person{name: "Charlie", age: 35})
+```
+```
+s := []struct {
+    x int
+    y string
+}{
+    {1, "a"},
+    {2, "b"},
+}
+```
+
+- Append is a variadic function. It can take multiple arguments
+```
+slice = append(slice, 30,40,50)
+```
 
 ## Map
 - Key value pairs
 `var hashMap = make(map[string]string)`
 - Cannot mix diff datatypes in map keys and in values
+- Direct initialization or Literal syntax
+```
+var hashMap = map[string]int{
+    "key1": 10,
+    "key2": 20,
+}
+```
+- Never use var to declare and initialize a map. Always use make or literal syntax
+- Adding key value pair
+`hashMap["key3"] = 30`
+- Deleting key value pair
+`delete(hashMap, "key2")`
+- Check if key exists
+```
+value, exists := hashMap["key1"]
+if exists {
+    // key exists
+} else {
+    // key does not exist
+}
+```
 
 ## Struct
 - Key, value of diff data types
@@ -101,13 +182,16 @@ type data struct {
 ```
 
 Usage:
-
+```
 var structData = data {
     x: 10,
     y: "something sting",
     z: true,
     something: 10
 }
+```
+- You cannot loop over struct fields like in python dict
+
 
 ##  Blank identifier
 - Used to identify unused variable _
@@ -128,11 +212,12 @@ var structData = data {
 - Early returns
 
 ## Functions
-
+```
 func some(x int, y int) (sum int) {
     sum = x + y
     return sum
 }
+```
 
 Explicit return is good to read and it also initializes variable "sum"
 
@@ -141,15 +226,141 @@ Explicit return is good to read and it also initializes variable "sum"
 
  `defer fmt.Println("Exiting the program")`
 
+## Anonymous functions
+
+```
+func() {
+    fmt.Println("Anonymous function")
+}()
+```
+- assign anonymous function to a variable
+```
+sumFunc := func(x int, y int) int {
+    return x + y
+}
+result := sumFunc(10, 20)
+fmt.Println("Sum:", result)
+```
+
+## Closures
+- Function defined inside another function and it can access variables of outer function
+```
+func outerFunction(x int) func(int) int {
+    return func(y int) int {    
+        return x + y
+    }
+}
+``` 
+
 ## Conditionals
 
 - Syntactic sugar. y scope is limited to the if condition
-
+```
 if y := f(1,20); y > 3 {
 
 }
+else if y < 3 {
+
+}
+else {
+
+}
+```
 
 ## Pass by value and pass by reference
 - Pass by value - int, float, bool, struct, array, string
-- Pass by reference - mutex, map
+- Zero value of value types - 0, "", false
+- Reference types - pointers, slices, maps, channels, interfaces, functions
+- Zero value of reference types - nil
+- One can use make to create reference types
+- make helps to allocate capacity in memory beforehand so appending elements does not create new underlying array every time
 - Slices behave bit differently - sometimes as pointers and sometimes as values
+
+
+## For loops
+
+```
+for i := 0; i < 10; i++ {
+    fmt.Println(i)
+}
+```
+
+while loop
+```
+i := 0
+for i < 10 {
+    fmt.Println(i)
+    i++
+}
+```
+
+for loop with range
+```
+arr := []int{10,20,30,40,50}
+for index, value := range arr {
+    fmt.Println("Index:", index, "Value:", value)
+}
+```
+
+Only need index
+```
+for index := range arr {
+    fmt.Println("Index:", index)
+}
+```
+Only need value
+```
+for _, value := range arr {
+    fmt.Println("Value:", value)
+}
+```
+
+## Switch case
+
+```
+switch variable := expression; variable {
+case value1:
+    // do something
+case value2:
+    // do something
+default:
+    // do something
+}
+```
+
+- Replacement for multiple if else statements
+```
+switch {
+case condition1:
+    // do something
+case condition2:    
+    // do something
+default:
+    // do something
+}
+```
+
+## Print statements
+
+- fmt.Printf("String: %s, Int: %d, Float: %.2f", strVar, intVar, floatVar)
+- fmt.Sprintf - returns formatted string instead of printing
+- fmt.Println - prints with space separation
+
+# Panic and Recover
+- Panic is similar to raising an exception in other languages
+- Recover is used to catch a panic and continue execution of the program
+```
+func safeDivision(num1, num2 int) {
+    defer func() {
+        if r := recover(); r != nil {
+            fmt.Println("Recovered from panic:", r)
+        }
+    }()
+    result := num1 / num2
+    fmt.Println("Result:", result)
+}
+func main() {
+    safeDivision(10, 0)
+    fmt.Println("Program continues after recovery.")
+}
+```
